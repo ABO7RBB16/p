@@ -1,0 +1,35 @@
+-- LocalScript
+local player = game.Players.LocalPlayer
+local MY_ID = 10080511071
+
+if player.UserId ~= MY_ID then script.Parent:Destroy() return end
+
+local screenGui = script.Parent
+local frame = Instance.new("Frame", screenGui)
+frame.Size = UDim2.new(0, 250, 0, 120)
+frame.Position = UDim2.new(0, 10, 0.5, -60)
+frame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+
+local textBox = Instance.new("TextBox", frame)
+textBox.Size = UDim2.new(0, 230, 0, 40)
+textBox.Position = UDim2.new(0, 10, 0, 10)
+textBox.PlaceholderText = "اكتب اسم اللاعب هنا..."
+textBox.Text = ""
+
+local bringBtn = Instance.new("TextButton", frame)
+bringBtn.Size = UDim2.new(0, 230, 0, 40)
+bringBtn.Position = UDim2.new(0, 10, 0, 60)
+bringBtn.Text = "جلب اللاعب لسيرفري 🚀"
+bringBtn.BackgroundColor3 = Color3.fromRGB(0, 150, 0)
+bringBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+
+bringBtn.MouseButton1Click:Connect(function()
+	if textBox.Text ~= "" then
+		game.ReplicatedStorage.GlobalBringEvent:FireServer(textBox.Text)
+		bringBtn.Text = "جاري البحث في السيرفرات..."
+		task.wait(3)
+		bringBtn.Text = "تم إرسال طلب الجلب ✅"
+		task.wait(2)
+		bringBtn.Text = "جلب اللاعب لسيرفري 🚀"
+	end
+end)
