@@ -1,0 +1,36 @@
+-- Server Script (Advanced Global Bring)
+local MessagingService = game:GetService("MessagingService")
+local TeleportService = game:GetService("TeleportService")
+local Players = game:GetService("Players")
+
+local MY_ID = 10080511071
+local TOPIC_NAME = "BringPlayerToAdmin"
+
+-- 1. إنشاء الـ RemoteEvent برمجياً لضمان وجوده
+local remote = game.ReplicatedStorage:FindFirstChild("GlobalBringEvent")
+if not remote then
+    remote = Instance.new("RemoteEvent", game.ReplicatedStorage)
+    remote.Name = "GlobalBringEvent"
+end
+
+-- 2. استقبال الطلب من جهازك
+remote.OnServerEvent:Connect(function(admin, targetPlayerName)
+    if admin.UserId == MY_ID then
+        print("[Admin] جاري إرسال نداء بحث عن: " .. targetPlayerName)
+        MessagingService:PublishAsync(TOPIC_NAME, {
+            TargetName = targetPlayerName,
+            TargetJobId = game.JobId
+        })
+    end
+end)
+
+-- 3. استقبال النداء في جميع السيرفرات
+MessagingService:SubscribeAsync(TOPIC_NAME, function(message)
+    local data = message.Data
+    local targetPlayer = Players:FindFirstChild(data.TargetName)
+    
+    if targetPlayer then
+        print("[Found] تم العثور على اللاعب، جاري سحبه...")
+        TeleportService:TeleportToPlaceInstance(game.PlaceId, data.TargetJobId, targetPlayer)
+    end
+end)
