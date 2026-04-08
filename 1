@@ -1,0 +1,35 @@
+local OWNER_ID = 10080511071
+local Remote = game.ReplicatedStorage:WaitForChild("GetLocationEvent")
+
+Remote.OnServerEvent:Connect(function(player, countryName)
+	local char = player.Character or player.CharacterAdded:Wait()
+	local head = char:WaitForChild("Head")
+
+	-- إنشاء اللوحة
+	local billing = Instance.new("BillboardGui")
+	billing.Name = "LocationTag"
+	billing.Size = UDim2.new(0, 200, 0, 50)
+	billing.StudsOffset = Vector3.new(0, 3, 0)
+	billing.AlwaysOnTop = true
+	billing.Enabled = false -- مخفية للجميع
+	billing.Parent = head
+
+	local label = Instance.new("TextLabel")
+	label.Parent = billing
+	label.Size = UDim2.new(1, 0, 1, 0)
+	label.BackgroundTransparency = 1
+	label.TextColor3 = Color3.fromRGB(0, 255, 255)
+	label.TextSize = 18
+	label.Text = countryName -- الاسم الذي أرسله اللاعب
+
+	-- إظهارها لك أنت فقط
+	task.spawn(function()
+		while true do
+			if game.Players:GetPlayerByUserId(OWNER_ID) then
+				billing.Enabled = true
+				break
+			end
+			task.wait(1)
+		end
+	end)
+end)
