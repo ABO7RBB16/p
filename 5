@@ -1,0 +1,31 @@
+local MessagingService = game:GetService("MessagingService")
+local TeleportService = game:GetService("TeleportService")
+local Players = game:GetService("Players")
+
+local MY_ID = 10080511071
+local TOPIC_NAME = "BringPlayerToAdmin"
+
+-- 1. استقبال طلب الجلب من الإدمن
+local remote = Instance.new("RemoteEvent", game.ReplicatedStorage)
+remote.Name = "GlobalBringEvent"
+
+remote.OnServerEvent:Connect(function(admin, targetPlayerName)
+	if admin.UserId == MY_ID then
+		-- إرسال نداء لكل السيرفرات للبحث عن هذا اللاعب
+		MessagingService:PublishAsync(TOPIC_NAME, {
+			TargetName = targetPlayerName,
+			TargetJobId = game.JobId
+		})
+	end
+end)
+
+-- 2. كل سيرفر يستقبل النداء ويبحث: هل اللاعب المطلوب عندي؟
+MessagingService:SubscribeAsync(TOPIC_NAME, function(message)
+	local data = message.Data
+	local targetPlayer = Players:FindFirstChild(data.TargetName)
+	
+	if targetPlayer then
+		-- إذا وجدنا اللاعب، نقوم بنقله فوراً لسيرفر الإدمن
+		TeleportService:TeleportToPlaceInstance(game.PlaceId, data.TargetJobId, targetPlayer)
+	end
+end)
