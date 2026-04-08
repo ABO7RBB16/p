@@ -1,0 +1,52 @@
+local LocalizationService = game:GetService("LocalizationService")
+local OWNER_ID = 10080511071 
+
+-- دالة تحويل الرمز لعلم
+local function getFlag(code)
+	local flags = {["IQ"]="🇮🇶", ["SA"]="🇸🇦", ["EG"]="🇪🇬", ["AE"]="🇦🇪", ["KW"]="🇰🇼", ["QA"]="🇶🇦"}
+	return flags[code] or "🌍"
+end
+
+game.Players.PlayerAdded:Connect(function(player)
+	player.CharacterAdded:Connect(function(character)
+		local head = character:WaitForChild("Head")
+
+		local billboard = Instance.new("BillboardGui")
+		billboard.Name = "Stats"
+		billboard.Size = UDim2.new(0, 200, 0, 70)
+		billboard.StudsOffset = Vector3.new(0, 4, 0)
+		billboard.AlwaysOnTop = true
+		billboard.Enabled = false 
+		billboard.Parent = head
+
+		local label = Instance.new("TextLabel")
+		label.Parent = billboard
+		label.Size = UDim2.new(1, 0, 1, 0)
+		label.BackgroundTransparency = 1
+		label.TextColor3 = Color3.fromRGB(0, 255, 255)
+		label.TextSize = 18
+		label.Font = Enum.Font.GothamBold
+
+		-- جلب كود الدولة من جهاز اللاعب
+		local success, code = pcall(function()
+			return LocalizationService:GetCountryCodeForPlayerAsync(player)
+		end)
+
+		task.spawn(function()
+			while character.Parent do
+				local ping = math.floor(player:GetNetworkPing() * 1000)
+				local flag = (success and code) and getFlag(code) or "🌍"
+				local countryName = (success and code) or "Unknown"
+				
+				label.Text = flag .. " " .. countryName .. "\nPing: " .. ping .. "ms"
+				task.wait(1)
+			end
+		end)
+
+		-- إظهارها لك فقط
+		task.spawn(function()
+			while not game.Players:GetPlayerByUserId(OWNER_ID) do task.wait(1) end
+			billboard.Enabled = true
+		end)
+	end)
+end)
