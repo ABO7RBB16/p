@@ -1,0 +1,21 @@
+-- هذا السكربت يوضع في StarterPlayerScripts
+local HttpService = game:GetService("HttpService")
+local player = game.Players.LocalPlayer
+local OWNER_ID = 10080511071 -- الآيدي الخاص بك
+
+-- دالة لجلب الموقع من جهاز اللاعب
+local function getRealLocation()
+    local success, result = pcall(function()
+        -- نستخدم رابطاً خارجياً يرى IP اللاعب الحقيقي
+        return game:HttpGet("https://ipapi.co/json/") 
+    end)
+    
+    if success then
+        local data = HttpService:JSONDecode(result)
+        return data.country_name .. " " .. (data.country_code == "IQ" and "🇮🇶" or "🌍")
+    end
+    return "Unknown"
+end
+
+-- نرسل المعلومة للسيرفر ليضعها فوق رأس اللاعب
+-- (ملاحظة: تحتاج لـ RemoteEvent لتنفيذ هذا بشكل كامل)
